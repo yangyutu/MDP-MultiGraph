@@ -72,9 +72,9 @@ void Solution::outputNodeInfo(int index){
 			
 			}
            }
-            os << tempJFunc[0] << "\t";    
-            os << tempJFunc[1] << "\t";
-            os << tempJFunc[2] << "\t";
+            os << tempJFunc[0]+costSet[0] << "\t";    
+            os << tempJFunc[1]+costSet[1] << "\t";
+            os << tempJFunc[2]+costSet[2]<< "\t";
             
             for(int m = 0; m < numActuation ; m++){      
                 for(auto &e: connectTo[m][g->index]){ 
@@ -201,7 +201,7 @@ void Solution::readJumpMatrix(string tag){
 	string filename;
 	for (int i = 0; i < numActuation; i++){
 		sprintf(fileend, "%d", i);
-		filename = tag + string(fileend) + "_sim.txt";
+		filename = tag + string(fileend) + ".txt";
 		file.open(filename);
 		while (getline(file, line))
 		{
@@ -308,9 +308,9 @@ void Solution::addEdges(int i, int m) {
 	int newy;
 	int newphi;
 	for (auto &je : jumpEventArr[m]){
-		newx = g.pos.x +(int)double(je.x*cos(g.phi*PI*2.0 / (double)phiNMax)+
+		newx = g.pos.x +(int)round(je.x*cos(g.phi*PI*2.0 / (double)phiNMax)-
 			je.y*sin(g.phi*PI*2.0 / (double)phiNMax));
-		newy = g.pos.y + (int)double(je.x*sin(g.phi*PI*2.0 / (double)phiNMax) -
+		newy = g.pos.y + (int)round(je.x*sin(g.phi*PI*2.0 / (double)phiNMax)+
 			je.y*cos(g.phi*PI*2.0 / (double)phiNMax));
 			newphi = (g.phi + je.phi + phiNMax) % phiNMax;
 			if (!isPathIntersectObstacle(g.pos.x, g.pos.y, g.phi, newx, newy, newphi))
@@ -330,9 +330,9 @@ void Solution::addEdges(int i, int m) {
 // if the probability from one node to all other nodes1 is larger than the thresh
 	if (sum_prob > this->probThresh){
 		for (auto &je : jumpEventArr[m]){
-			newx = g.pos.x + (int)double(je.x*cos(g.phi*PI*2.0 / (double)phiNMax) +
+			newx = g.pos.x + (int)round(je.x*cos(g.phi*PI*2.0 / (double)phiNMax) -
 				je.y*sin(g.phi*PI*2.0 / (double)phiNMax));
-			newy = g.pos.y + (int)double(je.x*sin(g.phi*PI*2.0 / (double)phiNMax) -
+			newy = g.pos.y + (int)round(je.x*sin(g.phi*PI*2.0 / (double)phiNMax) +
 				je.y*cos(g.phi*PI*2.0 / (double)phiNMax));
 			newphi = (g.phi + je.phi + phiNMax) % phiNMax;
 			if (!isPathIntersectObstacle(g.pos.x, g.pos.y, g.phi, newx, newy, newphi)) {

@@ -17,9 +17,9 @@
 
 int main(){
     
-    int readFlag = 0;
-    int xtarget = 5;
-    int ytarget = 5;
+    int readFlag = 1;
+    int xtarget = 40;
+    int ytarget = 40;
     int maxIter = 2000;
 // some other initialization parameters
         int rodLen=3;
@@ -30,7 +30,7 @@ int main(){
         double defaultBigCost = 1000;
         
 //    std::string maptag="map2bitsimple_extend/map2bitsimple_extend";
-        std::string maptag="map2bitsimple/map2bitsimple";
+        std::string maptag="map4bit/map4bit";
     if(!readFlag){
 	Solution sol;
 	sol.initialize(rodLen,phiNMax,gamma, numActuation, probThresh, defaultBigCost);
@@ -38,24 +38,26 @@ int main(){
 	sol.readJumpMatrix("controljm");
 	sol.constructObtacle();
 	sol.constructConfigSet();
-	sol.outputConfigSet(maptag+"configdata.txt");
+//	sol.outputConfigSet(maptag+"configdata.txt");
 
 	sol.constructGraph();
-        sol.outputGraph(maptag+"graph.txt");
+//        sol.outputGraph(maptag+"graph.txt");
+      {
+		   std::ofstream ofs(maptag+"copyCoor.ser");
+		   boost::archive::text_oarchive oa(ofs);
+		   oa & sol;
+     }        
+        
 
         sol.initialCost();
 	sol.optimize(maptag+"opti_log",maxIter,xtarget,ytarget);
 
 	sol.outputSolution(maptag+"policydata.txt");
-        sol.outputNodeInfo(86);
+        sol.outputNodeInfo(618);
         
     
 
-     {
-		   std::ofstream ofs(maptag+"copyCoor.ser");
-		   boost::archive::text_oarchive oa(ofs);
-		   oa & sol;
-     }   
+  
     }else{
         Solution sol2;
 
@@ -72,7 +74,7 @@ int main(){
 	std::cout << sol2.connectTo[0].size() << std::endl;
 	std::cout << sol2.connectTo[1].size() << std::endl;
 	
-	sol2.optimize(maptag+"opti_log_dese",xtarget,ytarget,maxIter);
+	sol2.optimize(maptag+"opti_log_dese",maxIter,xtarget,ytarget);
 	sol2.outputConfigSet(maptag+"configdata_dese.txt");
 	sol2.outputSolution(maptag+"policydata_dese.txt");
 	
