@@ -96,7 +96,7 @@ void Solution::outputNodeInfo(int index){
 	os.close();
 }
 
-void Solution::outputSolution(string filename){
+void Solution::outputPolicy(string filename){
 	ofstream os;
 	os.open(filename);
 
@@ -591,4 +591,114 @@ void Solution::refineJump(){
         } 
     }  
 */
+}
+
+
+void Solution::simulate(string policyname,string outputfile, int x0, int y0, int nstep, int outputfreq){
+    ifstream is;
+    string line;
+    is.open(policyname);
+    int dum;
+    int index;
+    for(int i = 0; i < numV ; i++){
+        getline(is, line);
+	stringstream linestream(line);
+        linestream >> index;
+        linestream >> dum;
+        linestream >> dum;
+        linestream >> dum;
+        linestream >> (mapV[index]->OptControl);
+        linestream >> (mapV[index]->JFunc);
+        linestream >> (mapV[index]->isolation);    
+    }
+    
+
+    
+    int step = 0;
+    
+    map<int, double> oldSol, newSol;
+    
+    for( int i=0; i < numV ; i++){
+        oldSol[i] = 0.0;
+        newSol[i] = 0.0;
+    
+    }
+    
+    auto it = configIndex.find(Config(x0,y0,0));
+    if (it == configIndex.end()){
+        cout << "initial configuration not admissible" << endl;
+        exit(100);
+    }
+    
+    int initialIndex = it->second; 
+    oldSol[initialIndex] = 1.0;
+    newSol[initialIndex] = 1.0;
+    int count = 0;
+    int countedge;
+    double sumtemp;
+    while( step < nstep ){
+//  update the probability of every node
+//  probability will flow into 
+// and flow out        
+        sumtemp = 0.0;
+        countedge= 0 ;
+        for(int i = 0; i < numV; i++){
+            int option = mapV[i]->OptControl;     
+            for(Edge &e : connectTo[option][i]) {
+                newSol[i] -= oldSol[i]*e.transProb;
+                newSol[e.to] += oldSol[i]*e.transProb;
+ //               sumtemp += oldSol[e.from]*e.transProb;
+ //               countedge++;
+            }
+            
+        }
+        cout << "simulate step: " << step << endl;
+//        cout << sumtemp << endl; 
+//        cout << countedge << endl;
+        
+        if(step == 0 || (step+1)%outputfreq == 0){
+            count++;
+            outputProbDist(outputfile,count,newSol);
+            
+        }
+       
+        
+        for(int i = 0; i < numV; i++){
+            oldSol[i] = newSol[i];
+        }
+        
+        step++;
+        
+    }
+
+
+}
+
+
+void Solution::outputProbDist(string outputfile,int count,const map<int, double> &newSol){
+    char * fileend;
+    string filename;
+    ofstream os;
+    sprintf(fileend, "%d", count);
+    filename = outputfile + string(fileend) + ".txt";
+    os.open(filename);
+    
+	for(auto &it: mapV){
+	
+	GNode *g = it.second;
+//	if(g->isolation == 1){
+//            if(g->OptControl != 0) cout<< "wrong: the node is"<< g->index << endl;
+//	}	
+            os << g->index << "\t";
+            os << g->pos.x << "\t";
+	    os << g->pos.y << "\t";
+	    os << g->phi << "\t";
+            os << newSol.at(g->index) << "\t";
+            os << g->isolation << "\t";
+            os << endl;
+    }
+    os.close();
+    
+
+
 }

@@ -82,7 +82,7 @@ public:
  Solution(){};
 	void readJumpMatrix(std::string tag);
 	void outputConfigSet(std::string filename);
-	void outputSolution(std::string filename);
+	void outputPolicy(std::string filename);
 	void outputGraph(std::string);
 	void readBitmap(std::string s);
 	void constructObtacle();
@@ -107,8 +107,8 @@ public:
         void refineJump();
         void outputNodeInfo(int index);
 
-	
-	
+	void simulate(std::string policyname,std::string, int x0, int y0, int nstep, int outputfreq);
+	void outputProbDist(std::string outputfile,int count, const std::map<int, double> &newSol);
 };
 
 #endif

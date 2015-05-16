@@ -18,19 +18,24 @@
 int main(){
     
     int readFlag = 1;
-    int xtarget = 40;
-    int ytarget = 40;
-    int maxIter = 2000;
+    int xtarget = 5;
+    int ytarget = 5;
+    int maxIter = 2000;   
 // some other initialization parameters
-        int rodLen=3;
-	int phiNMax=8;
-	double gamma=0.99;
-	int numActuation = 3;
-	double probThresh = 0.5;
-        double defaultBigCost = 1000;
+    int rodLen=3;
+    int phiNMax=8;
+    double gamma=0.99;
+    int numActuation = 3;
+    double probThresh = 0.5;
+    double defaultBigCost = 1000;
+// initial parameter for simulation
+    int nstep = 500;
+    int outputFreq = 50;
+    int x0 = 5;
+    int y0 = 5;
         
 //    std::string maptag="map2bitsimple_extend/map2bitsimple_extend";
-        std::string maptag="map4bit/map4bit";
+        std::string maptag="map2bitsimple/map2bitsimple";
     if(!readFlag){
 	Solution sol;
 	sol.initialize(rodLen,phiNMax,gamma, numActuation, probThresh, defaultBigCost);
@@ -52,13 +57,15 @@ int main(){
         sol.initialCost();
 	sol.optimize(maptag+"opti_log",maxIter,xtarget,ytarget);
 
-	sol.outputSolution(maptag+"policydata.txt");
+	sol.outputPolicy(maptag+"policydata.txt");
         sol.outputNodeInfo(618);
         
-    
+        sol.simulate(maptag+"policydata.txt",maptag+"probSolution",x0,y0, nstep, outputFreq);
 
   
     }else{
+        int optimizeFlag = 1;
+        int simulateFlag = 1;
         Solution sol2;
 
 	sol2.initialize( rodLen, phiNMax, gamma,  numActuation,  probThresh, defaultBigCost); 
@@ -73,11 +80,14 @@ int main(){
 	
 	std::cout << sol2.connectTo[0].size() << std::endl;
 	std::cout << sol2.connectTo[1].size() << std::endl;
-	
+	if(optimizeFlag == 1){
 	sol2.optimize(maptag+"opti_log_dese",maxIter,xtarget,ytarget);
 	sol2.outputConfigSet(maptag+"configdata_dese.txt");
-	sol2.outputSolution(maptag+"policydata_dese.txt");
-	
+	sol2.outputPolicy(maptag+"policydata_dese.txt");
+        }
+	if(simulateFlag == 1){ 
+        sol2.simulate(maptag+"policydata_dese.txt",maptag+"probSolution",x0,y0, nstep, outputFreq);
+        }
     }
 //	system("pause");
     std::cout << "finish!" << std::endl;
