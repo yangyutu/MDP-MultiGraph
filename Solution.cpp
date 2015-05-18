@@ -487,10 +487,11 @@ void Solution::optimize(string logfile, int maxIter0, int xtarget0, int ytarget0
 			Q.push(index->second);
 			marked[index->second] = 1;	
 			GNode &g = *(mapV[index->second]);
-			g.JFunc = 0.0;
-			g.OptControl=0;
-			g.JFunc_old = 0.0;
-			g.OptControl_old=0;
+                        
+//			g.JFunc = 0.0;
+//			g.OptControl=0;
+//			g.JFunc_old = 0.0;
+//			g.OptControl_old=0;
 //                        g.isolation = 0;
 		}
 		}
@@ -519,7 +520,11 @@ void Solution::optimize(string logfile, int maxIter0, int xtarget0, int ytarget0
                                         
 				}
 				tempJFunc[m] += costSet[m];
+                           if(g.pos.x == xtarget && g.pos.y == ytarget) tempJFunc[m]-=costSet[m];     
 			}
+                        
+//              if this is the target , costSet should be 0
+                        
 			
 			int minIndex=0;
 			double minVal=g.JFunc_old;
