@@ -164,6 +164,30 @@ void Solution::readBitmap(string s){
 	}
 	os.close();
 	is.close();
+        
+  
+	os.open(s+"walldata.txt");
+        int count = 0;
+	for (double i = -1; i <= rowBM; i+=0.5)
+	{
+		for (double j = -1; j <= colBM; j+=0.5){
+                    if( (int)round(i) >= 0 && (int)round(i) < rowBM && (int)round(j) >= 0 && (int)round(j) < colBM){
+                        if (bitmap[(int)round(i)][(int)round(j)] == 0){
+                        count++;
+                        os << count <<"\t" << j << "\t" << i << endl;
+                        }
+                    } else if( abs(i+1) < 0.25 || abs(i-rowBM) < 0.25 ||
+                               abs(j+1) < 0.25 || abs(j-colBM) < 0.25 ){
+                        count++;
+                        os << count <<"\t" << j << "\t" << i << endl;    
+                    }
+                }
+		
+	}
+	os.close();
+	
+        
+        
 }
 
 
@@ -327,7 +351,7 @@ void Solution::addEdges(int i, int m) {
 //				cout << newx << "\t" << newy << "\t" << newphi << endl;
 //			}
 	}
-// if the probability from one node to all other nodes1 is larger than the thresh
+// if the probability from one node to all other nodes1 is larger than the thresh and it is not diffusion mode
 	if (sum_prob > this->probThresh){
 		for (auto &je : jumpEventArr[m]){
 			newx = g.pos.x + (int)round(je.x*cos(g.phi*PI*2.0 / (double)phiNMax) -
@@ -347,20 +371,35 @@ void Solution::addEdges(int i, int m) {
 			}
 		}
                 
-                double test = 0.0;
-                for(Edge &e:connectTo[m][i]){
-                    test+=e.transProb;
-                }
-                if(abs(test-1.0)>1e-6) cout<< test << "\t" << i <<"\t" << m << endl;
+ //               double test = 0.0;
+ //               for(Edge &e:connectTo[m][i]){
+ //                   test+=e.transProb;
+ //               }
+//                if(abs(test-1.0)>1e-6) cout<< test << "\t" << i <<"\t" << m << endl;
 
-	}else{
- // otherwise this rod is considered isolated at actuation m and should never choose this acutuation
-            isolationSet[m].insert(i);
+	}else if( m == 0){
+                for (auto &je : jumpEventArr[m]){
+			newx = g.pos.x + (int)round(je.x*cos(g.phi*PI*2.0 / (double)phiNMax) -
+				je.y*sin(g.phi*PI*2.0 / (double)phiNMax));
+			newy = g.pos.y + (int)round(je.x*sin(g.phi*PI*2.0 / (double)phiNMax) +
+				je.y*cos(g.phi*PI*2.0 / (double)phiNMax));
+			newphi = (g.phi + je.phi + phiNMax) % phiNMax;
+			if (!isPathIntersectObstacle(g.pos.x, g.pos.y, g.phi, newx, newy, newphi)) {
+				auto index = configIndex.find(Config(newx, newy, newphi));
+				if (index != configIndex.end()){
+					int j = index->second;
+					Edge e(i, j, costSet[m], m, je.prob / sum_prob);
+					connectBy[m][j].push_back(e);
+					connectTo[m][i].push_back(e);
+					numE++;
+				}
+			}
+		}
         
         
         }
 	
-	}
+}
 
 bool Solution::isPathIntersectObstacle(int x, int y, int phi, int newx, int newy, int newphi) {
 

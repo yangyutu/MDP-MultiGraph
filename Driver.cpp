@@ -17,9 +17,9 @@
 
 int main(){
     
-    int readFlag = 1;
-    int xtarget = 5;
-    int ytarget = 5;
+    int readFlag = 0;
+    int xtarget = 3;
+    int ytarget = 15;
     int maxIter = 2000;   
 // some other initialization parameters
     int rodLen=3;
@@ -30,12 +30,12 @@ int main(){
     double defaultBigCost = 1000;
 // initial parameter for simulation
     int nstep = 500;
-    int outputFreq = 50;
+    int outputFreq = 25;
     int x0 = 5;
-    int y0 = 5;
+    int y0 = 3;
         
 //    std::string maptag="map2bitsimple_extend/map2bitsimple_extend";
-        std::string maptag="map2bitsimple/map2bitsimple";
+        std::string maptag="map2bit/map2bit";
     if(!readFlag){
 	Solution sol;
 	sol.initialize(rodLen,phiNMax,gamma, numActuation, probThresh, defaultBigCost);
