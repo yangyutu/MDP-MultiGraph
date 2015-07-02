@@ -15,6 +15,8 @@ rod: $(OBJS)
 #map_ser.o:map_ser.cpp
 #	$(CC) -c $(CFLAGS) map_ser.cpp
 
+rod_static: $(OBJS)
+	$(CC) -o $@ $(OBJS) -static $(LFLAGS)
 
 clean:
 	rm *.o rod
