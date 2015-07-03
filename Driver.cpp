@@ -17,8 +17,8 @@
 int main() {
 
     int readFlag = 0;
-    int xtarget = 7;
-    int ytarget = 68;
+    int xtarget = 68;
+    int ytarget = 7;
     int maxIter = 2000;
     // some other initialization parameters
     int rodLen = 3;
