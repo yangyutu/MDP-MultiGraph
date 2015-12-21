@@ -19,7 +19,8 @@ int main() {
     int readFlag = 0;
     int xtarget = 68;
     int ytarget = 7;
-    int maxIter = 2000;
+    int maxIter = 8000;
+    int serializeFlag = 0;
     // some other initialization parameters
     int rodLen = 3;
     int phiNMax = 8;
@@ -28,14 +29,17 @@ int main() {
     double probThresh = 0.5;
     double defaultBigCost = 1000;
     // initial parameter for simulation
-    int nstep = 100;
-    int outputFreq = 3;
-    int x0 = 5;
-    int y0 = 3;
+    int nstep = 600;
+    int outputFreq = 30;
+    int x0 = 4;
+    int y0 = 4;
+    int simulateFlag = 1;
+    int optimizeFlag = 1;
+    int calFirstPassageTimeFlag = 1;
 
-    //    std::string maptag="map2bitsimple_extend/map2bitsimple_extend";
+    Solution::actionMode FirstPassageTimeOpt = Solution::optimal;
     std::string maptag = "map5bit/map5bit";
-// if contruct the graph from stratch
+// if construct the graph from stratch
     if (!readFlag) {
         Solution sol;
         sol.initialize(rodLen, phiNMax, gamma, numActuation, probThresh, defaultBigCost);
@@ -47,26 +51,29 @@ int main() {
 
         sol.constructGraph();
         //        sol.outputGraph(maptag+"graph.txt");
-        {
+        
+        if(serializeFlag){
             std::ofstream ofs(maptag + "copyCoor.ser");
             boost::archive::text_oarchive oa(ofs);
             oa & sol;
         }
 
-
-        sol.initialCost();
-        sol.optimize(maptag + "opti_log", maxIter, xtarget, ytarget);
-
-        sol.outputPolicy(maptag + "policydata.txt");
-        sol.outputNodeInfo(618);
-
-        sol.simulate(maptag + "policydata.txt", maptag + "probSolution", x0, y0, nstep, outputFreq);
-
+        if (optimizeFlag){
+            sol.initialCost();
+            sol.optimize(maptag + "opti_log", maxIter, xtarget, ytarget);
+            sol.outputPolicy(maptag + "policydata.txt");
+        }
+        if (simulateFlag){
+            sol.simulate(maptag + "policydata.txt", maptag + "probSolution", x0, y0, nstep, outputFreq);
+        }
+        if (calFirstPassageTimeFlag){
+            sol.calFirstPassageTime(maptag + "policydata.txt", x0, y0, xtarget, ytarget, 2, nstep, FirstPassageTimeOpt);
+        }
 
     } else {
 //if directly read the map from the serialized data        
-        int optimizeFlag = 1;
-        int simulateFlag = 1;
+
+
         Solution sol2;
 
         sol2.initialize(rodLen, phiNMax, gamma, numActuation, probThresh, defaultBigCost);
@@ -88,6 +95,10 @@ int main() {
         if (simulateFlag == 1) {
             sol2.simulate(maptag + "policydata_dese.txt", maptag + "probSolution", x0, y0, nstep, outputFreq);
         }
+        if (calFirstPassageTimeFlag){
+        sol2.calFirstPassageTime(maptag + "policydata_dese.txt", x0, y0, xtarget, ytarget, 2, nstep, FirstPassageTimeOpt);
+        }
+        
     }
     //	system("pause");
     std::cout << "finish!" << std::endl;

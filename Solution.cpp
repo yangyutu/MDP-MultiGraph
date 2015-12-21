@@ -132,7 +132,7 @@ void Solution::readBitmap(string s) {
         } else if (lineNum == 2) {
             linestream>>colBM;
             mapXMax = colBM;
-            cout << "The number of rows of the matrix are: " << colBM << endl;
+            cout << "The number of cols of the matrix are: " << colBM << endl;
             bitmap = new int*[rowBM];
             for (int i = 0; i < rowBM; i++) {
                 bitmap[i] = new int[colBM];
@@ -654,11 +654,11 @@ void Solution::simulate(string policyname, string outputfile, int x0, int y0, in
 }
 
 void Solution::outputProbDist(string outputfile, int count, const map<int, double> &newSol) {
-    char * fileend;
+    std::stringstream fileend;
     string filename;
     ofstream os;
-    sprintf(fileend, "%d", count);
-    filename = outputfile + string(fileend) + ".txt";
+    fileend << count;
+    filename = outputfile + fileend.str() + ".txt";
     os.open(filename);
 
     for (auto &it : mapV) {
@@ -674,4 +674,113 @@ void Solution::outputProbDist(string outputfile, int count, const map<int, doubl
         os << endl;
     }
     os.close();
+}
+
+void Solution::calFirstPassageTime(string policyname, int x0, int y0,  int xtarget, int ytarget, int width, int nstep, actionMode act) {
+    ifstream is;
+    string line;
+    is.open(policyname);
+    int dum;
+    int index;
+    for (int i = 0; i < numV; i++) {
+        getline(is, line);
+        stringstream linestream(line);
+        linestream >> index;
+        linestream >> dum;
+        linestream >> dum;
+        linestream >> dum;
+        linestream >> (mapV[index]->OptControl);
+        linestream >> (mapV[index]->JFunc);
+        linestream >> (mapV[index]->isolation);
+    }
+
+
+
+    int step = 0;
+
+    map<int, double> oldSol, newSol;
+
+    for (int i = 0; i < numV; i++) {
+        oldSol[i] = 0.0;
+        newSol[i] = 0.0;
+
+    }
+
+    auto it = configIndex.find(Config(x0, y0, 0));
+    if (it == configIndex.end()) {
+        cout << "initial configuration not admissible" << endl;
+        exit(100);
+    }
+
+    int initialIndex = it->second;
+    oldSol[initialIndex] = 1.0;
+    newSol[initialIndex] = 1.0;
+    int count = 0;
+    int countedge;
+    double prob_mass_sum ;
+    int option;
+
+    ofstream os;
+    os.open("first_pass_time.txt");
+    while (step < nstep) {
+        //  update the probability of every node
+        //  probability will flow into 
+        // and flow out        
+        prob_mass_sum = 0.0;
+        countedge = 0;
+        for (int i = 0; i < numV; i++) {
+            if (act == optimal){
+                option = mapV[i]->OptControl;
+            } else if(act == diffusion) {
+                option = 0;
+            } else if(act == slow) {
+                option = 1;
+            } else if(act == fast) {
+                option = 2;
+            }
+            // for nodes in the adsorbing region or nodes have too low probabiliy mass, we last neglect it.
+            if (!inAdsorbingRegion(mapV[i], xtarget, ytarget, width)) {
+                for (Edge &e : connectTo[option][i]) {
+                    newSol[i] -= oldSol[i] * e.transProb;
+                    newSol[e.to] += oldSol[i] * e.transProb;
+
+                }
+            }
+
+        }
+        
+        cout << "simulate step in first passage time calculation: " << step << endl;
+
+        // we need to sum up all the survival probability mass
+        for (int i = 0; i < numV; i++) {
+            // for nodes in the adsorbing region or nodes have too low probabiliy mass, we last neglect it.
+            if (!inAdsorbingRegion(mapV[i], xtarget, ytarget, width) ){
+                prob_mass_sum += newSol[i];
+            }
+        }
+        
+        os << step << "\t";
+        os << prob_mass_sum << endl;
+
+        for (int i = 0; i < numV; i++) {
+            oldSol[i] = newSol[i];
+        }
+        step++;
+        
+
+    }
+
+
+
+}
+
+
+
+bool Solution::inAdsorbingRegion(GNode *g, int xtarget, int ytarget, int width){
+
+	if ( abs(g->pos.x - xtarget) < width && abs(g->pos.y - ytarget) < width) {
+		return true;
+	}
+
+	return false;
 }

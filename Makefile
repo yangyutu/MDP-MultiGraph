@@ -1,6 +1,6 @@
 CC = g++
-CFLAGS = -std=c++0x -I/opt/boost/boost_1_57_0 -Wall -Wextra -pedantic -g3 -DDEBUG
-LFLAGS = -L/opt/boost/boost_1_57_0/stage/lib -lboost_serialization -O3
+CFLAGS = -std=c++0x -I/opt/boost/boost_1_57_0 -Wall -Wextra -pedantic -O3 -DDEBUG
+LFLAGS = -L/opt/boost/boost_1_57_0/stage/lib -lboost_serialization
 
 #all:map_ser
 
