@@ -520,7 +520,7 @@ void Solution::optimize(string logfile, int maxIter0, int xtarget0, int ytarget0
             diffVal -= costSet[opt];
         }
         if (diffVal > 1e-6) {
-            cout << g->index << "\t" << diffVal << endl;
+            cout << "Not converged node!: "<<g->index << "\t" << diffVal << endl;
         }
     }
 }
@@ -735,8 +735,17 @@ void Solution::calFirstPassageTime(string policyname, int x0, int y0,  int xtarg
                 option = 0;
             } else if(act == slow) {
                 option = 1;
+                
+            //		if Gnode is not connect to any other nodes via actutaion slow
+                if (connectTo[1][i].size() == 0){
+                    option = 0;
+                }
             } else if(act == fast) {
                 option = 2;
+                            //		if Gnode is not connect to any other nodes via actutaion fast
+                if (connectTo[2][i].size() == 0){
+                    option = 0;
+                }
             }
             // for nodes in the adsorbing region or nodes have too low probabiliy mass, we last neglect it.
             if (!inAdsorbingRegion(mapV[i], xtarget, ytarget, width)) {

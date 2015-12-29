@@ -17,8 +17,8 @@
 int main() {
 
     int readFlag = 0;
-    int xtarget = 68;
-    int ytarget = 7;
+    int xtarget = 2;
+    int ytarget = 25;
     int maxIter = 8000;
     int serializeFlag = 0;
     // some other initialization parameters
@@ -29,16 +29,16 @@ int main() {
     double probThresh = 0.5;
     double defaultBigCost = 1000;
     // initial parameter for simulation
-    int nstep = 600;
+    int nstep = 12000;
     int outputFreq = 30;
-    int x0 = 4;
-    int y0 = 4;
-    int simulateFlag = 1;
-    int optimizeFlag = 1;
+    int x0 = 3;
+    int y0 = 3;
+    int simulateFlag = 0;
+    int optimizeFlag = 0;
     int calFirstPassageTimeFlag = 1;
 
-    Solution::actionMode FirstPassageTimeOpt = Solution::optimal;
-    std::string maptag = "map5bit/map5bit";
+    Solution::actionMode FirstPassageTimeOpt = Solution::slow;
+    std::string maptag = "map3bit/map3bit";
 // if construct the graph from stratch
     if (!readFlag) {
         Solution sol;
