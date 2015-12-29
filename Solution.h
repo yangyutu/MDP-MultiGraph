@@ -16,7 +16,7 @@ class Solution{
 	
 public:
     
-        enum actionMode{ optimal, diffusion, slow, fast};
+        enum actionMode{ optimal=0, diffusion=1, slow=2, fast=3};
 
 	std::vector<GNode *> configSet;
 	std::vector<int> finishSet;

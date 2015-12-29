@@ -38,7 +38,75 @@ int main() {
     int calFirstPassageTimeFlag = 1;
 
     Solution::actionMode FirstPassageTimeOpt = Solution::slow;
+    int FirstPassageTimeOpt_num;
     std::string maptag = "map3bit/map3bit";
+    {
+    std::string line;
+    std::ifstream runfile;
+    runfile.open("run.txt");
+    getline(runfile, line);
+    runfile >> readFlag;
+    getline(runfile, line);
+    getline(runfile, line);
+    runfile >> xtarget;
+    getline(runfile, line);
+    getline(runfile, line);
+    runfile >> ytarget;
+    getline(runfile, line);
+    getline(runfile, line);
+    runfile >> maxIter;
+    getline(runfile, line);
+    getline(runfile, line);
+    runfile >> serializeFlag;
+    getline(runfile, line);
+    getline(runfile, line);
+    runfile >> rodLen;
+    getline(runfile, line);
+    getline(runfile, line);
+    runfile >> phiNMax;
+    getline(runfile, line);
+    getline(runfile, line);
+    runfile >> gamma;
+    getline(runfile, line);
+    getline(runfile, line);
+    runfile >> numActuation;
+    getline(runfile, line);
+    getline(runfile, line);
+    runfile >> probThresh;
+    getline(runfile, line);
+    getline(runfile, line);
+    runfile >> defaultBigCost;
+    getline(runfile, line);
+    getline(runfile, line);
+    runfile >> nstep;
+    getline(runfile, line);
+    getline(runfile, line);
+    runfile >> outputFreq;
+    getline(runfile, line);
+    getline(runfile, line);
+    runfile >> x0;
+    getline(runfile, line);
+    getline(runfile, line);
+    runfile >> y0;
+    getline(runfile, line);
+    getline(runfile, line);
+    runfile >> simulateFlag;
+    getline(runfile, line);
+    getline(runfile, line);
+    runfile >> optimizeFlag;
+    getline(runfile, line);
+    getline(runfile, line);
+    runfile >> calFirstPassageTimeFlag;
+    getline(runfile, line);
+    getline(runfile, line);
+    runfile >>  FirstPassageTimeOpt_num;
+    getline(runfile, line);    
+     getline(runfile, line);
+    getline(runfile, maptag);
+    FirstPassageTimeOpt = static_cast<Solution::actionMode>( FirstPassageTimeOpt_num);
+
+    }
+    
 // if construct the graph from stratch
     if (!readFlag) {
         Solution sol;
