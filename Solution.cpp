@@ -729,6 +729,10 @@ void Solution::calFirstPassageTime(string policyname, int x0, int y0,  int xtarg
         prob_mass_sum = 0.0;
         countedge = 0;
         for (int i = 0; i < numV; i++) {
+            if(oldSol[i] < 1e-12){
+                continue;
+            }
+            
             if (act == optimal){
                 option = mapV[i]->OptControl;
             } else if(act == diffusion) {
@@ -747,12 +751,52 @@ void Solution::calFirstPassageTime(string policyname, int x0, int y0,  int xtarg
                     option = 0;
                 }
             }
+            double prob_sum = 0.0;
             // for nodes in the adsorbing region or nodes have too low probabiliy mass, we last neglect it.
             if (!inAdsorbingRegion(mapV[i], xtarget, ytarget, width)) {
+                
+                
                 for (Edge &e : connectTo[option][i]) {
-                    newSol[i] -= oldSol[i] * e.transProb;
-                    newSol[e.to] += oldSol[i] * e.transProb;
 
+                    if (act == fast) {
+
+                        // only if the jumpTo node has action fast
+                        
+                        newSol[i] -= oldSol[i] * e.transProb;
+                        if (connectTo[2][e.to].size() != 0){
+                            prob_sum += e.transProb;
+                            
+                        } 
+                    
+                    } else if (act == slow) {
+                        
+                        newSol[i] -= oldSol[i] * e.transProb;
+                        if (connectTo[1][e.to].size() != 0){
+                            prob_sum += e.transProb;
+                            
+                        }
+                        
+                    } else{
+
+                          newSol[i] -= oldSol[i] * e.transProb;
+                        newSol[e.to] += oldSol[i] * e.transProb;
+                    }
+                }
+                if (act == fast) {
+                    for (Edge &e : connectTo[option][i]) {
+                        if (connectTo[2][e.to].size() != 0 && prob_sum > 1e-6) {
+                            newSol[e.to] += oldSol[i] * e.transProb / prob_sum;
+                        }
+
+                    }
+                }
+                if (act == slow) {
+                    for (Edge &e : connectTo[option][i]) {
+                        if (connectTo[1][e.to].size() != 0 && prob_sum > 1e-6) {
+                            newSol[e.to] += oldSol[i] * e.transProb / prob_sum;
+                        }
+
+                    }
                 }
             }
 

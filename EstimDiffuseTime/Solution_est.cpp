@@ -781,6 +781,10 @@ void Solution::calFirstPassageTime(string policyname, int x0, int y0,  int xtarg
         prob_mass_sum = 0.0;
         countedge = 0;
         for (int i = 0; i < numV; i++) {
+            
+            if(oldSol[i] < 1e-12){
+                continue;
+            }
             if(act == diffusion) {
                 option = 0;
             }
