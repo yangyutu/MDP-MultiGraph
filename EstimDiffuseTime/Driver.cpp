@@ -20,9 +20,9 @@
 int main() {
 
     int readFlag = 0;
-    // for map5bit 68,7; map3bit 2, 25
-    int xtarget = 120;
-    int ytarget = 120;
+    // for map5bit 68,7; map3bit 2, 25; map6bit 3,3
+    int xtarget = 75;
+    int ytarget = 75;
     int maxIter = 8000;
     int serializeFlag = 0;
     // some other initialization parameters
@@ -33,17 +33,17 @@ int main() {
     double probThresh = 0.5;
     double defaultBigCost = 1000;
     // initial parameter for simulation
-    int nstep = 10000;
+    int nstep = 100000;
     int outputFreq = 30;
-    // for map5bit 4,4, map3bit 3,3
-    int x0 = 118;
-    int y0 = 10;
+    // for map5bit 4,4, map3bit 3,3, map6bit 45,45
+    int x0 = 10;
+    int y0 = 60;
     int simulateFlag = 0;
 //    int optimizeFlag = 1;
     int calFirstPassageTimeFlag = 1;
 
     Solution::actionMode FirstPassageTimeOpt = Solution::diffusion;
-    std::string maptag = "circularmap/circularmap";
+    std::string maptag = "map7bit/map7bit";
 // if construct the graph from stratch
     if (!readFlag) {
         Solution sol;

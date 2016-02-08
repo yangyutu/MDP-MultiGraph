@@ -135,7 +135,7 @@ int main() {
             sol.simulate(maptag + "policydata.txt", maptag + "probSolution", x0, y0, nstep, outputFreq);
         }
         if (calFirstPassageTimeFlag){
-            sol.calFirstPassageTime(maptag + "policydata.txt", x0, y0, xtarget, ytarget, 2, nstep, FirstPassageTimeOpt);
+            sol.calFirstPassageTime(maptag + "policydata.txt", x0, y0, xtarget, ytarget, 2, nstep, FirstPassageTimeOpt, outputFreq);
         }
 
     } else {
@@ -164,7 +164,7 @@ int main() {
             sol2.simulate(maptag + "policydata_dese.txt", maptag + "probSolution", x0, y0, nstep, outputFreq);
         }
         if (calFirstPassageTimeFlag){
-        sol2.calFirstPassageTime(maptag + "policydata_dese.txt", x0, y0, xtarget, ytarget, 2, nstep, FirstPassageTimeOpt);
+        sol2.calFirstPassageTime(maptag + "policydata_dese.txt", x0, y0, xtarget, ytarget, 2, nstep, FirstPassageTimeOpt, outputFreq);
         }
         
     }

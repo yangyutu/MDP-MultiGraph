@@ -676,7 +676,8 @@ void Solution::outputProbDist(string outputfile, int count, const map<int, doubl
     os.close();
 }
 
-void Solution::calFirstPassageTime(string policyname, int x0, int y0,  int xtarget, int ytarget, int width, int nstep, actionMode act) {
+void Solution::calFirstPassageTime(string policyname, int x0, int y0,  int xtarget, int ytarget, int width, 
+                                    int nstep, actionMode act, int outputfreq) {
     ifstream is;
     string line;
     is.open(policyname);
@@ -804,6 +805,12 @@ void Solution::calFirstPassageTime(string policyname, int x0, int y0,  int xtarg
         
         cout << "simulate step in first passage time calculation: " << step << endl;
 
+        if (step == 0 || (step + 1) % outputfreq == 0) {
+            count++;
+            outputProbDist("firstpassage", count, newSol);
+
+        }        
+        
         // we need to sum up all the survival probability mass
         for (int i = 0; i < numV; i++) {
             // for nodes in the adsorbing region or nodes have too low probabiliy mass, we last neglect it.
