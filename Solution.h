@@ -111,7 +111,7 @@ public:
         void outputNodeInfo(int index);
 
 	void simulate(std::string policyname,std::string, int x0, int y0, int nstep, int outputfreq);
-	void outputProbDist(std::string outputfile,int count, const std::map<int, double> &newSol);
+	void outputProbDist(std::string outputfile,int count, const std::vector<double> &newSol);
         void calFirstPassageTime(std::string policyname, int x0, int y0, int xtarget, int ytarget, int width, int nstep, actionMode act,int);
         bool inAdsorbingRegion(GNode *g, int xtarget, int ytarget, int width);
         

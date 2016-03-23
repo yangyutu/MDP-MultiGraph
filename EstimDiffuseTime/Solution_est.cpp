@@ -269,14 +269,16 @@ bool Solution::isOverlapObstacle(int x0, int y0, int phi) {
     
     xtemp = x0;
     ytemp = y0;
-/*
+
     for (int i = -rodLen / 2; i <= rodLen / 2; i++) {
-        xtemp = x0 + (int) round(cos(phi * PI * 2.0 / (double) phiNMax) * i);
-        ytemp = y0 + (int) round(sin(phi * PI * 2.0 / (double) phiNMax) * i);
+        for (int j = -rodLen / 2; j <= rodLen / 2; j++) {
+            xtemp = x0 + i;
+            ytemp = y0 + j;
         if (outOfBoundary(xtemp, ytemp)) return true;
         if (obstacleSet.find(CoorPair(xtemp, ytemp)) != obstacleSet.end()) return true;
+        }
     }
-*/
+
     if (outOfBoundary(xtemp, ytemp)) return true;
     if (obstacleSet.find(CoorPair(xtemp, ytemp)) != obstacleSet.end()) return true;
 
