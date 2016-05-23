@@ -676,15 +676,32 @@ void Solution::outputProbDist(string outputfile, int count, const vector<double>
     os.close();
 }
 
-//#define SPARSE
-#ifdef SPARSE
+//#define FAST_OPTIMAL
+#ifdef FAST_OPTIMAL
 // this algorithm is not finish, but I am planning to use nblist to speed up the algorithm
 void Solution::calFirstPassageTime(string policyname, int x0, int y0,  int xtarget, int ytarget, int width, 
                                     int nstep, actionMode act, int outputfreq) {
     ifstream is;
     string line;
+    
+    std::vector<int> notAdsorbV;
+    int notAdsorbVNum;
+    // construct the not adsorbed node
+    for (int i = 0; i < numV; i++) {
+        // for nodes in the adsorbing region or nodes have too low probabiliy mass, we last neglect it.
+        if (!inAdsorbingRegion(mapV[i], xtarget, ytarget, width)) {
+            notAdsorbV.push_back(i);
+        }
+    }
+    
+    notAdsorbVNum = notAdsorbV.size();
+    
     is.open(policyname);
 
+    if (act != optimal) {
+        std::cerr << "this compilier version is only for optimal mode first passage time evaluation" << std::endl;
+        exit(5);
+    }
     Eigen::SparseMatrix<double> propagator(numV,numV);
     std::vector< Eigen::Triplet<double> > tripletList;
 
@@ -706,7 +723,7 @@ void Solution::calFirstPassageTime(string policyname, int x0, int y0,  int xtarg
 
     int step = 0;
 
-    std::vector<double> oldSol, newSol;
+    std::vector<double> oldSol(numV), newSol(numV);
 
     for (int i = 0; i < numV; i++) {
         oldSol[i] = 0.0;
@@ -730,9 +747,8 @@ void Solution::calFirstPassageTime(string policyname, int x0, int y0,  int xtarg
 
     ofstream os;
     os.open("first_pass_time.txt");
-    // at the first step build the sparse matrix propagator
-    typedef Eigen::Triplet<double> T;
-        //  update the probability of every node
+   while (step < nstep) {
+         //  update the probability of every node
         //  probability will flow into 
         // and flow out        
         prob_mass_sum = 0.0;
@@ -748,75 +764,20 @@ void Solution::calFirstPassageTime(string policyname, int x0, int y0,  int xtarg
                 option = 0;
             } else if(act == slow) {
                 option = 1;
-                
-            //		if Gnode is not connect to any other nodes via actutaion slow
-                if (connectTo[1][i].size() == 0){
-                    option = 0;
-                }
-            } else if(act == fast) {
-                option = 2;
-                            //		if Gnode is not connect to any other nodes via actutaion fast
-                if (connectTo[2][i].size() == 0){
-                    option = 0;
-                }
-            }
+            }   
             double prob_sum = 0.0;
             // for nodes in the adsorbing region or nodes have too low probabiliy mass, we last neglect it.
             if (!inAdsorbingRegion(mapV[i], xtarget, ytarget, width)) {
                 
                 
                 for (Edge &e : connectTo[option][i]) {
-
-                    if (act == fast) {
-
-                        // only if the jumpTo node has action fast
-                        
-                        newSol[i] -= oldSol[i] * e.transProb;
-                   //     tripletList.push_back(T(i,j,v_ij))
-                        
-                        if (connectTo[2][e.to].size() != 0){
-                            prob_sum += e.transProb;
-                            nbList[i].pushback(e.to);
-                            nbListPro[i].pushback(e.transProb);
-                        } 
-                    
-                    } else if (act == slow) {
-                        
-                        newSol[i] -= oldSol[i] * e.transProb;
-                        if (connectTo[1][e.to].size() != 0){
-                            prob_sum += e.transProb;
-                            nbList[i].pushback(e.to);
-                            nbListPro[i].pushback(e.transProb);
-                        }
-                        
-                    } else{
-
                             newSol[i] -= oldSol[i] * e.transProb;
                             newSol[e.to] += oldSol[i] * e.transProb;
-                            nbList[i].pushback(e.to);
-                            nbListPro[i].pushback(e.transProb);
                     }
-                }
-                if (act == fast) {
-                    for (Edge &e : connectTo[option][i]) {
-                        if (connectTo[2][e.to].size() != 0 && prob_sum > 1e-6) {
-                            newSol[e.to] += oldSol[i] * e.transProb / prob_sum;
-                            
-                        }
-                        
-                    }
-                }
-                if (act == slow) {
-                    for (Edge &e : connectTo[option][i]) {
-                        if (connectTo[1][e.to].size() != 0 && prob_sum > 1e-6) {
-                            newSol[e.to] += oldSol[i] * e.transProb / prob_sum;
-                        }
-
-                    }
-                }
             }
+       }
 
-        }
+        
         
         cout << "simulate step in first passage time calculation: " << step << endl;
 
@@ -827,119 +788,10 @@ void Solution::calFirstPassageTime(string policyname, int x0, int y0,  int xtarg
         }        
         
         // we need to sum up all the survival probability mass
-        for (int i = 0; i < numV; i++) {
+        for (int i = 0; i < notAdsorbVNum; i++) {
             // for nodes in the adsorbing region or nodes have too low probabiliy mass, we last neglect it.
-            if (!inAdsorbingRegion(mapV[i], xtarget, ytarget, width) ){
-                prob_mass_sum += newSol[i];
-            }
-        }
-        
-        os << step << "\t";
-        os << prob_mass_sum << endl;
-
-        for (int i = 0; i < numV; i++) {
-            oldSol[i] = newSol[i];
-        }
-        step++;
-        
-    
-    
-    
-    
-    while (step < nstep) {
-        //  update the probability of every node
-        //  probability will flow into 
-        // and flow out        
-        prob_mass_sum = 0.0;
-        countedge = 0;
-        for (int i = 0; i < numV; i++) {
-            if(oldSol[i] < 1e-12){
-                continue;
-            }
+            prob_mass_sum += newSol[notAdsorbV[i]];
             
-            if (act == optimal){
-                option = mapV[i]->OptControl;
-            } else if(act == diffusion) {
-                option = 0;
-            } else if(act == slow) {
-                option = 1;
-                
-            //		if Gnode is not connect to any other nodes via actutaion slow
-                if (connectTo[1][i].size() == 0){
-                    option = 0;
-                }
-            } else if(act == fast) {
-                option = 2;
-                            //		if Gnode is not connect to any other nodes via actutaion fast
-                if (connectTo[2][i].size() == 0){
-                    option = 0;
-                }
-            }
-            double prob_sum = 0.0;
-            // for nodes in the adsorbing region or nodes have too low probabiliy mass, we last neglect it.
-            if (!inAdsorbingRegion(mapV[i], xtarget, ytarget, width)) {
-                
-                
-                for (Edge &e : connectTo[option][i]) {
-
-                    if (act == fast) {
-
-                        // only if the jumpTo node has action fast
-                        
-                        newSol[i] -= oldSol[i] * e.transProb;
-                        if (connectTo[2][e.to].size() != 0){
-                            prob_sum += e.transProb;
-                            
-                        } 
-                    
-                    } else if (act == slow) {
-                        
-                        newSol[i] -= oldSol[i] * e.transProb;
-                        if (connectTo[1][e.to].size() != 0){
-                            prob_sum += e.transProb;
-                            
-                        }
-                        
-                    } else{
-
-                          newSol[i] -= oldSol[i] * e.transProb;
-                        newSol[e.to] += oldSol[i] * e.transProb;
-                    }
-                }
-                if (act == fast) {
-                    for (Edge &e : connectTo[option][i]) {
-                        if (connectTo[2][e.to].size() != 0 && prob_sum > 1e-6) {
-                            newSol[e.to] += oldSol[i] * e.transProb / prob_sum;
-                        }
-
-                    }
-                }
-                if (act == slow) {
-                    for (Edge &e : connectTo[option][i]) {
-                        if (connectTo[1][e.to].size() != 0 && prob_sum > 1e-6) {
-                            newSol[e.to] += oldSol[i] * e.transProb / prob_sum;
-                        }
-
-                    }
-                }
-            }
-
-        }
-        
-        cout << "simulate step in first passage time calculation: " << step << endl;
-
-        if (step == 0 || (step + 1) % outputfreq == 0) {
-            count++;
-            outputProbDist("firstpassage", count, newSol);
-
-        }        
-        
-        // we need to sum up all the survival probability mass
-        for (int i = 0; i < numV; i++) {
-            // for nodes in the adsorbing region or nodes have too low probabiliy mass, we last neglect it.
-            if (!inAdsorbingRegion(mapV[i], xtarget, ytarget, width) ){
-                prob_mass_sum += newSol[i];
-            }
         }
         
         os << step << "\t";
@@ -950,11 +802,8 @@ void Solution::calFirstPassageTime(string policyname, int x0, int y0,  int xtarg
         }
         step++;
         
-
-    }
-
-
-
+        }
+    
 }
 
 #else
@@ -980,7 +829,18 @@ void Solution::calFirstPassageTime(string policyname, int x0, int y0,  int xtarg
         linestream >> (mapV[index]->JFunc);
         linestream >> (mapV[index]->isolation);
     }
-
+    
+    std::vector<int> notAdsorbV;
+    int notAdsorbVNum;
+    // construct the not adsorbed node
+    for (int i = 0; i < numV; i++) {
+        // for nodes in the adsorbing region or nodes have too low probabiliy mass, we last neglect it.
+        if (!inAdsorbingRegion(mapV[i], xtarget, ytarget, width)) {
+            notAdsorbV.push_back(i);
+        }
+    }
+    
+    notAdsorbVNum = notAdsorbV.size();
 
 
     int step = 0;
@@ -1098,11 +958,10 @@ void Solution::calFirstPassageTime(string policyname, int x0, int y0,  int xtarg
         }        
         
         // we need to sum up all the survival probability mass
-        for (int i = 0; i < numV; i++) {
+        for (int i = 0; i < notAdsorbVNum; i++) {
             // for nodes in the adsorbing region or nodes have too low probabiliy mass, we last neglect it.
-            if (!inAdsorbingRegion(mapV[i], xtarget, ytarget, width) ){
-                prob_mass_sum += newSol[i];
-            }
+            prob_mass_sum += newSol[notAdsorbV[i]];
+            
         }
         
         os << step << "\t";

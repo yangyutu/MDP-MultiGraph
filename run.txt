@@ -1,9 +1,9 @@
 read Flag
 0
 xtarget
-42
+2
 ytarget
-42
+25
 maxIter
 8000
 serializerFlag
@@ -15,15 +15,15 @@ phiNmax
 gamma
 0.99
 numActuaction
-2
+3
 probThresh
 0.5
 defaultBigcost
 1000
 nstep for simulation
-60000
+2000
 outputFreq
-10000
+100
 x0
 3
 y0
@@ -35,6 +35,8 @@ optimizerFlag
 calFirstPassageTimeFlag
 1
 calfirstPassageTimeOpt
-1
+0
 maptag
-circularmap/circularmap_eroded
+map3bit/map3bit
+target width
+2

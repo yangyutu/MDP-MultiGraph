@@ -36,7 +36,7 @@ int main() {
     int simulateFlag = 0;
     int optimizeFlag = 0;
     int calFirstPassageTimeFlag = 1;
-
+    int target_width;
     Solution::actionMode FirstPassageTimeOpt = Solution::slow;
     int FirstPassageTimeOpt_num;
     std::string maptag = "map3bit/map3bit";
@@ -103,6 +103,9 @@ int main() {
     getline(runfile, line);    
      getline(runfile, line);
     getline(runfile, maptag);
+    getline(runfile, line);    
+     runfile >> target_width;
+    
     FirstPassageTimeOpt = static_cast<Solution::actionMode>( FirstPassageTimeOpt_num);
 
     }
@@ -135,7 +138,7 @@ int main() {
             sol.simulate(maptag + "policydata.txt", maptag + "probSolution", x0, y0, nstep, outputFreq);
         }
         if (calFirstPassageTimeFlag){
-            sol.calFirstPassageTime(maptag + "policydata.txt", x0, y0, xtarget, ytarget, 2, nstep, FirstPassageTimeOpt, outputFreq);
+            sol.calFirstPassageTime(maptag + "policydata.txt", x0, y0, xtarget, ytarget, target_width, nstep, FirstPassageTimeOpt, outputFreq);
         }
 
     } else {
@@ -164,7 +167,7 @@ int main() {
             sol2.simulate(maptag + "policydata_dese.txt", maptag + "probSolution", x0, y0, nstep, outputFreq);
         }
         if (calFirstPassageTimeFlag){
-        sol2.calFirstPassageTime(maptag + "policydata_dese.txt", x0, y0, xtarget, ytarget, 2, nstep, FirstPassageTimeOpt, outputFreq);
+        sol2.calFirstPassageTime(maptag + "policydata_dese.txt", x0, y0, xtarget, ytarget, target_width, nstep, FirstPassageTimeOpt, outputFreq);
         }
         
     }
